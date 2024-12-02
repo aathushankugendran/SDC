@@ -25,7 +25,3 @@ SDC combines speech analysis and general pediatric developmental tracking into a
 ## Get Involved 🤝
 
 We welcome contributions from developers, researchers, and therapists passionate about improving pediatric care through technology. Feel free to fork the repository, submit pull requests, or open issues with ideas or suggestions!
-
-## License 📄
-
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
