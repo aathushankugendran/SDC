@@ -1,5 +1,5 @@
 # 🗣️ Speech & Development Companion (SDC)
-
+### (in progress)
 ## 📌 Overview
 The **Speech & Development Companion (SDC)** is a digital tool designed to **analyze and track speech development in children with Autism Spectrum Disorder (ASD)**. It leverages **machine learning, speech-to-text transcription, NLP (Natural Language Processing), and cloud-based AI models** to extract meaningful insights from children's speech data.
 
