@@ -1,27 +1,140 @@
-# Speech & Development Companion (SDC) 🎯
+# 🗣️ Speech & Development Companion (SDC)
 
-Welcome to the **Speech & Development Companion (SDC)** repository! This project aims to provide a comprehensive digital tool for tracking and analyzing the developmental progress of children, particularly in the context of speech therapy and pediatric growth. It is designed to assist caregivers, parents, and therapists in understanding a child’s journey through key developmental stages, with a special focus on supporting children with autism.
+## 📌 Overview
+The **Speech & Development Companion (SDC)** is a digital tool designed to **analyze and track speech development in children with Autism Spectrum Disorder (ASD)**. It leverages **machine learning, speech-to-text transcription, NLP (Natural Language Processing), and cloud-based AI models** to extract meaningful insights from children's speech data.
 
-## About the Project 📚
+## 🚀 Project Goals
+- **Transcribe speech recordings** from children with ASD.
+- **Extract linguistic and acoustic features** (speech rate, pitch, fluency, emotional tone, etc.).
+- **Analyze speech using NLP and machine learning**.
+- **Generate insights and progress reports** for parents and therapists.
+- **Store and visualize data securely**.
 
-SDC combines speech analysis and general pediatric developmental tracking into a user-friendly web platform. It allows users to monitor speech therapy sessions, track developmental milestones, and gain valuable insights into a child’s progress over time. Using machine learning and NLP techniques, SDC analyzes session logs, transcribes audio recordings, and generates custom reports to provide a clear picture of a child’s growth in both communication and motor skills.
+---
 
-## Key Features ✨
+## 📂 Data Sources
+We use the following **public datasets** to train and analyze speech:
 
-- **Pediatric Development Tracking**: Log milestones and track the progress of children in areas like language, motor skills, and cognitive development. Stay up to date with growth indicators based on well-researched benchmarks.
-- **Speech Therapy Progress Analysis**: Upload audio recordings from speech therapy sessions or enter session notes manually. SDC transcribes, analyzes, and highlights key linguistic metrics like vocabulary usage, sentence structure complexity, and emotional tone.
-- **Sentiment and Emotional Insight**: Gain insights into the child’s emotional state during therapy sessions with sentiment analysis. Track how emotions evolve over time, helping therapists tailor their approach to keep sessions engaging.
-- **Custom Reports & Visualizations**: Generate PDF or CSV reports summarizing key progress metrics. Visualize trends over time with intuitive charts, making it easier to share updates with parents or other healthcare providers.
-- **Data Privacy and Security**: SDC is built with a strong focus on data security, ensuring that sensitive information about children is securely stored and handled according to industry best practices.
+### 🔹 Primary ASD Speech Datasets:
+- **CPSD (Child Pathological Speech Database)** – ASD & language impairment speech recordings.
+- **CHILDES Database (TalkBank Project)** – ASD, Down Syndrome, and neurotypical speech samples.
+- **TORGO Database** – Speech & articulatory data from children with Cerebral Palsy.
+- **VoiceBank Dataset** – Clinical speech synthesis dataset for personalized speech analysis.
 
-## Tech Stack 🛠️
+### 🔹 Supporting Speech Disorder Datasets:
+- **PROCSA Dataset (Aphasia Speech Samples)** – Auditory-perceptual speech features (for analysis comparison).
+- **Saarbruecken Voice Database** – Large dataset of disordered speech recordings.
+- **ALS Voice Dataset** – Voice recordings from ALS patients (useful for comparison with ASD speech patterns).
 
-- **Frontend**: React.js, Chart.js/D3.js for data visualization
-- **Backend**: Node.js, Express.js, MongoDB for data storage
-- **Machine Learning**: TensorFlow/Keras, NLTK, spaCy for sentiment and speech analysis
-- **Hosting**: AWS (S3 for file storage, EC2 for hosting), AWS Lambda for serverless processing
-- **Speech-to-Text Integration**: Google Cloud Speech-to-Text or AWS Transcribe
+---
 
-## Get Involved 🤝
+## 🔍 Step-by-Step Process
 
-We welcome contributions from developers, researchers, and therapists passionate about improving pediatric care through technology. Feel free to fork the repository, submit pull requests, or open issues with ideas or suggestions!
+### **1️⃣ Data Storage & Organization (AWS S3 + MongoDB)**
+- Store raw **audio files** in **AWS S3** (`s3://sdc-asd-speech-data/raw_audio/`).
+- Store **processed transcripts, extracted features, and insights** in **MongoDB Atlas**.
+- Suggested **S3 hierarchy**:
+  ```
+  s3://sdc-asd-speech-data/
+  ├── raw_audio/
+  │   ├── ASD_speech_samples/
+  │   ├── Neurotypical_children/
+  │   ├── CP_speech_samples/
+  ├── transcripts/
+  ├── processed_audio/
+  ├── model_outputs/
+  ```
+
+### **2️⃣ Speech-to-Text Transcription (OpenAI Whisper / AWS Transcribe)**
+- Convert speech to text using **OpenAI Whisper**:
+  ```python
+  import whisper
+  model = whisper.load_model("large")
+  result = model.transcribe("child_speech.wav")
+  print(result["text"])
+  ```
+- Alternative: Use **AWS Transcribe** for scalable transcription.
+
+### **3️⃣ Feature Extraction (Librosa + Praat)**
+- Extract **speech rate, pitch, pauses, articulation rate**:
+  ```python
+  import librosa
+  import numpy as np
+
+  def extract_features(audio_path):
+      y, sr = librosa.load(audio_path)
+      return {
+          "duration": librosa.get_duration(y=y, sr=sr),
+          "mean_pitch": np.mean(librosa.piptrack(y=y, sr=sr)),
+          "speech_rate": len(librosa.effects.split(y)) / librosa.get_duration(y=y, sr=sr)
+      }
+  ```
+- Save extracted features to **MongoDB Atlas**.
+
+### **4️⃣ NLP Analysis (OpenAI GPT-4 for Speech Insights)**
+- Analyze speech transcriptions for **lexical diversity, sentence complexity, and emotion**:
+  ```python
+  import openai
+
+  openai.api_key = "YOUR_OPENAI_API_KEY"
+  prompt = "Analyze this child's speech for complexity and emotion:\n\n" + result["text"]
+
+  response = openai.ChatCompletion.create(
+      model="gpt-4",
+      messages=[{"role": "system", "content": prompt}]
+  )
+  print(response["choices"][0]["message"]["content"])
+  ```
+
+### **5️⃣ Data Visualization & Reporting (Chart.js + PDF Reports)**
+- **Web Dashboard (React.js + Chart.js)** to show **progress over time**.
+- **Generate reports** (PDF/CSV) for parents & therapists:
+  ```python
+  from reportlab.pdfgen import canvas
+
+  def generate_report(text_analysis, speech_features, file_path="speech_report.pdf"):
+      c = canvas.Canvas(file_path)
+      c.drawString(100, 750, "Speech Analysis Report")
+      c.drawString(100, 730, f"Lexical Complexity: {text_analysis['complexity']}")
+      c.drawString(100, 710, f"Speech Rate: {speech_features['speech_rate']}")
+      c.save()
+  ```
+
+---
+
+## 🛠️ Tech Stack
+| **Component**          | **Tool**            |
+|----------------------|------------------|
+| **Storage**          | AWS S3, MongoDB  |
+| **Speech-to-Text**   | OpenAI Whisper, AWS Transcribe  |
+| **Feature Extraction** | Librosa, Praat  |
+| **NLP Analysis**     | OpenAI GPT-4, spaCy, NLTK  |
+| **Frontend**         | React.js, Chart.js  |
+| **Hosting**          | AWS EC2, Lambda  |
+
+---
+
+## 🚀 Future Enhancements
+- **Personalized Speech Therapy Models** (AI-driven recommendations).
+- **Real-time Speech Feedback** (web-based speech assessment tool).
+- **Multi-language Support** for ASD speech assessment.
+
+---
+
+## 🤝 Get Involved
+We welcome contributions from **developers, speech therapists, and researchers** passionate about improving speech therapy with AI.
+
+### 🔹 How to Contribute:
+- **Fork the repository** & submit pull requests.
+- **Submit issues** for feature requests or bugs.
+- **Join discussions** about ASD speech research & technology.
+
+---
+
+## 📜 License
+This project is open-source under the **MIT License**.
+
+---
+
+## 📌 Acknowledgments
+Special thanks to researchers and open-source contributors who have provided datasets and tools for advancing speech analysis in ASD research. 🙌
