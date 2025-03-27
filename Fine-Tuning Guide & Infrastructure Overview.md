@@ -15,7 +15,7 @@ This README provides a detailed, structured guide on how to process, analyze, an
 
 ## 🔄 SDC Core Architecture (MVP)
 
-```mermaid
+```
 graph TD;
     A[Video/Audio Upload] --> B[Whisper Transcription];
     B --> C[Feature Extraction (librosa, pitch, rate)];
